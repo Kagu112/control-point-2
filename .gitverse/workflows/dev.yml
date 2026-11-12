@@ -1,0 +1,35 @@
+name: test-action
+
+on:
+  push:
+    branches:
+      - source
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: |
+          node --test
+
+      - name: setup git config
+        run: |
+          git config user.name "Bot"
+          git config user.email "<>"
+
+      - name: Prepare template
+        run: |
+          git checkout --orphan master source
+          > index.js
+          > src/NumberSchema.js
+          > src/ObjectSchema.js
+          > src/ArraySchema.js
+          > src/Validator.js
+          git add -A
+          git commit --no-verify -m "Rebuild template (auto)"
+          git push -f --no-verify --set-upstream origin master

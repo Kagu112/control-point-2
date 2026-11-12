@@ -1,0 +1,49 @@
+name: Autograding Tests
+on: 
+  push:
+    branches:
+      - master
+      
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run step1 tests
+        id: step1
+        continue-on-error: true
+        run: node --test --test-name-pattern step1
+
+      - name: Run step2 tests
+        id: step2
+        continue-on-error: true
+        run: node --test --test-name-pattern step2
+
+      - name: Run step3 tests
+        id: step3
+        continue-on-error: true
+        run: node --test --test-name-pattern step3
+
+      - name: Run step4 tests
+        id: step4
+        continue-on-error: true
+        run: node --test --test-name-pattern step4
+
+      - name: Check results
+        if: always()
+        run: |
+          FAILED=0
+          [ "${{ steps.step1.outcome }}" == "failure" ] && FAILED=$((FAILED+1))
+          [ "${{ steps.step2.outcome }}" == "failure" ] && FAILED=$((FAILED+1))
+          [ "${{ steps.step3.outcome }}" == "failure" ] && FAILED=$((FAILED+1))
+          [ "${{ steps.step4.outcome }}" == "failure" ] && FAILED=$((FAILED+1))
+          
+          if [ $FAILED -gt 0 ]; then
+            echo "❌ $FAILED из 4 тестов упало!"
+            exit 1
+          else
+            echo "✅ Все 4 теста пройдены!"
+            exit 0
+          fi
